@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>SpeedTest Internetu</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+    h1 { font-size: 2rem; }
+    #result { margin-top: 20px; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+  <h1>SpeedTest Internetu</h1>
+  <button onclick="runSpeedTest()">Rozpocznij test</button>
+  <div id="result">Kliknij przycisk, aby rozpocząć</div>
+  <div id="isp"></div>
+
+<script>
+  async function runSpeedTest() {
+    const resultDiv = document.getElementById("result");
+    resultDiv.textContent = "Test trwa...";
+
+    const imageAddr = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+    const downloadSize = 4995374; // Bajty
+
+    const startTime = new Date().getTime();
+    const download = new Image();
+    download.onload = async function () {
+      const endTime = new Date().getTime();
+      const duration = (endTime - startTime) / 1000;
+      const bitsLoaded = downloadSize * 8;
+      const speedMbps = (bitsLoaded / duration / 1024 / 1024).toFixed(2);
+      resultDiv.textContent = `Prędkość pobierania: ${speedMbps} Mb/s`;
+
+      const ispDiv = document.getElementById("isp");
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      ispDiv.innerHTML = `Dostawca: <b>${data.org}</b><br>IP: ${data.ip}<br>Miasto: ${data.city}, ${data.country_name}`;
+    };
+
+    download.onerror = function () {
+      resultDiv.textContent = "Błąd podczas testu.";
+    };
+
+    download.src = imageAddr + "?nnn=" + Math.random();
+  }
+</script>
+
+</body>
+</html>
