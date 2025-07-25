@@ -21,6 +21,7 @@
     }
 
     h1 {
+      font-weight: 700; /* bold */
       font-size: 2.2rem;
       margin-bottom: 30px;
       color: #ffffff;
@@ -88,18 +89,18 @@
       margin-top: 35px;
       padding: 12px 28px;
       font-size: 1.1rem;
-      background-color: #007bff;
+      background: linear-gradient(135deg, #1e90ff, #003366);
       color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: background-color 0.3s ease, transform 0.2s;
+      transition: background 0.3s ease, transform 0.2s;
       user-select: none;
     }
 
     button:hover {
-      background-color: #005ec2;
+      background: linear-gradient(135deg, #3aa0ff, #005599);
       transform: scale(1.03);
     }
 
@@ -133,7 +134,6 @@
   <div id="isp"></div>
 
   <script>
-    // Tworzymy 36 pasków wokół koła (co 10 stopni)
     const ticks = document.getElementById("ticks");
     for (let i = 0; i < 36; i++) {
       const tick = document.createElement("div");
@@ -151,9 +151,9 @@
       pingDiv.textContent = "Ping: ... ms";
 
       const imageAddr = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
-      const downloadSize = 4995374; // w bajtach (~4.7MB)
+      const downloadSize = 4995374;
 
-      // Pomiar pingu (ping przy prostym fetch do ipapi.co)
+      // Pomiar pingu
       const pingStart = performance.now();
       try {
         await fetch("https://ipapi.co/json/");
@@ -173,7 +173,6 @@
         const speedMbps = (bitsLoaded / duration / 1024 / 1024).toFixed(1);
 
         speedDiv.textContent = `${speedMbps} Mb/s`;
-        // Strzałka: 1 Mb/s = 2 stopnie (maks 360 stopni)
         arrow.style.transform = `rotate(${Math.min(speedMbps * 2, 360)}deg)`;
         resultDiv.textContent = `Prędkość pobierania: ${speedMbps} Mb/s`;
 
@@ -182,8 +181,7 @@
           const data = await res.json();
           document.getElementById("isp").innerHTML = `
             Dostawca: <b>${data.org}</b><br>
-            IP: ${data.ip}<br>
-            Lokalizacja: ${data.city}, ${data.country_name}
+            IP: ${data.ip}
           `;
         } catch {
           document.getElementById("isp").textContent = "Nie udało się pobrać danych o dostawcy.";
@@ -194,10 +192,12 @@
         resultDiv.textContent = "Błąd podczas testu.";
       };
 
-      // Cache buster, żeby za każdym razem pobierało świeży obrazek
       download.src = imageAddr + "?cacheBuster=" + Math.random();
     }
   </script>
+
+</body>
+</html>
 
 </body>
 </html>
