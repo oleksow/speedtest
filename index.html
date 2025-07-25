@@ -4,46 +4,127 @@
   <meta charset="UTF-8">
   <title>SpeedTest Internetu</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    h1 { font-size: 2rem; }
-    #result { margin-top: 20px; font-size: 1.2rem; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 50px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    #circle {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border: 10px solid #007bff;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #arrow {
+      position: absolute;
+      width: 4px;
+      height: 90px;
+      background: red;
+      transform-origin: bottom center;
+      transition: transform 0.4s ease;
+    }
+
+    #speed {
+      font-size: 1.5rem;
+      font-weight: bold;
+      z-index: 1;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    #result, #isp {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
   </style>
 </head>
 <body>
 
   <h1>SpeedTest Internetu</h1>
+
+  <div id="circle">
+    <div id="arrow"></div>
+    <div id="speed">0 Mb/s</div>
+  </div>
+
   <button onclick="runSpeedTest()">Rozpocznij test</button>
+
   <div id="result">Kliknij przycisk, aby rozpocząć</div>
   <div id="isp"></div>
 
 <script>
   async function runSpeedTest() {
     const resultDiv = document.getElementById("result");
+    const speedDiv = document.getElementById("speed");
+    const arrow = document.getElementById("arrow");
     resultDiv.textContent = "Test trwa...";
 
+    // Przykładowy plik do pobrania (ważny do pomiaru)
     const imageAddr = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
-    const downloadSize = 4995374; // Bajty
+    const downloadSize = 4995374; // rozmiar pliku w bajtach
 
     const startTime = new Date().getTime();
     const download = new Image();
+
     download.onload = async function () {
       const endTime = new Date().getTime();
-      const duration = (endTime - startTime) / 1000;
+      const duration = (endTime - startTime) / 1000; // w sekundach
       const bitsLoaded = downloadSize * 8;
-      const speedMbps = (bitsLoaded / duration / 1024 / 1024).toFixed(2);
+      const speedMbps = (bitsLoaded / duration / 1024 / 1024).toFixed(1);
+
+      // Aktualizacja wyświetlanych danych
+      speedDiv.textContent = `${speedMbps} Mb/s`;
+      arrow.style.transform = `rotate(${Math.min(speedMbps * 4, 180)}deg)`;
       resultDiv.textContent = `Prędkość pobierania: ${speedMbps} Mb/s`;
 
-      const ispDiv = document.getElementById("isp");
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      ispDiv.innerHTML = `Dostawca: <b>${data.org}</b><br>IP: ${data.ip}<br>Miasto: ${data.city}, ${data.country_name}`;
+      // Pobieranie danych o dostawcy internetu
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        document.getElementById("isp").innerHTML = `
+          Dostawca: <b>${data.org}</b><br>
+          IP: ${data.ip}<br>
+          Lokalizacja: ${data.city}, ${data.country_name}
+        `;
+      } catch {
+        document.getElementById("isp").textContent = "Nie udało się pobrać danych o dostawcy.";
+      }
     };
 
     download.onerror = function () {
       resultDiv.textContent = "Błąd podczas testu.";
     };
 
-    download.src = imageAddr + "?nnn=" + Math.random();
+    // Unikalny URL, by ominąć cache
+    download.src = imageAddr + "?cacheBuster=" + Math.random();
   }
 </script>
 
